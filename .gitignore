@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+dist/
+build/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/memory.json
+data/memory.jsonl
+.env
+.env.local
+*.tsbuildinfo
+*.log
+.DS_Store
+

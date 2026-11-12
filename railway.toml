@@ -1,0 +1,9 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm --prefix apps/mcp-fleet-weather install && npm --prefix apps/mcp-fleet-weather run build && npm --prefix apps/mcp-bookings-sqlite install && npm --prefix apps/mcp-bookings-sqlite run build && npm --prefix apps/orchestrator install && npm --prefix apps/orchestrator run build"
+
+[deploy]
+startCommand = "npm --prefix apps/orchestrator run start"
+healthcheckPath = "/api/health"
+restartPolicyType = "ON_FAILURE"
+

@@ -1,0 +1,16 @@
+{
+  "name": "easy-rent-bali-mcp-chatbot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Easy Rent Bali AI Concierge - Expo Mobile Chatbot with Multi-MCP Integration (MCP A Query, MCP B SQLite Persist, MCP C Public Memory Graph)",
+  "scripts": {
+    "install:all": "npm --prefix apps/mcp-fleet-weather install && npm --prefix apps/mcp-bookings-sqlite install && npm --prefix apps/orchestrator install && npm --prefix apps/mobile install",
+    "build:servers": "npm --prefix apps/mcp-fleet-weather run build && npm --prefix apps/mcp-bookings-sqlite run build && npm --prefix apps/orchestrator run build",
+    "dev:orchestrator": "npm --prefix apps/orchestrator run dev",
+    "start:orchestrator": "npm --prefix apps/orchestrator run start",
+    "dev:mobile": "npm --prefix apps/mobile run start",
+    "dev:web": "npm --prefix apps/mobile run web",
+    "test:mcp": "npm --prefix apps/orchestrator run test"
+  }
+}
+

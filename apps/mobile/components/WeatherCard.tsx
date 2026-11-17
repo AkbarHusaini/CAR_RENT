@@ -10,11 +10,11 @@ interface WeatherCardProps {
 
 export function WeatherCard({ weather }: WeatherCardProps) {
   const isRain = weather.isRainRisk;
-  const accentColor = isRain ? Theme.colors.mcpA : '#FBBF24';
-  const softBg = isRain ? 'rgba(56, 189, 248, 0.10)' : 'rgba(251, 191, 36, 0.10)';
-  const borderColor = isRain ? 'rgba(56, 189, 248, 0.25)' : 'rgba(251, 191, 36, 0.25)';
-  const badgeBg = isRain ? 'rgba(56, 189, 248, 0.14)' : 'rgba(16, 185, 129, 0.14)';
-  const badgeTextColor = isRain ? Theme.colors.mcpA : Theme.colors.primaryBright;
+  const accentColor = isRain ? '#9C6237' : '#D97706';
+  const softBg = isRain ? '#F7ECE1' : '#FEF3C7';
+  const borderColor = isRain ? '#E8D4C2' : '#FDE68A';
+  const badgeBg = isRain ? '#FCEFE3' : '#ECFDF5';
+  const badgeTextColor = isRain ? '#7D553A' : '#047857';
 
   const hubName = formatHubLabel(weather.hub);
   const conditionId = translateWeatherCondition(weather.condition);
@@ -23,11 +23,11 @@ export function WeatherCard({ weather }: WeatherCardProps) {
     : `Cuaca ${hubName} bersahabat (${Math.round(weather.temperatureC)}°C) — aman naik motor maupun mobil.`;
 
   return (
-    <View style={[styles.card, { borderColor }]}>
+    <View style={styles.card}>
       <View style={styles.topRow}>
         <View style={styles.leftHero}>
           <View style={[styles.iconCircle, { backgroundColor: softBg, borderColor }]}>
-            <Ionicons name={isRain ? 'rainy' : 'sunny'} size={22} color={accentColor} />
+            <Ionicons name={isRain ? 'rainy' : 'sunny'} size={20} color={accentColor} />
           </View>
           <View style={styles.heroTextWrap}>
             <View style={styles.tempRow}>
@@ -70,7 +70,7 @@ export function WeatherCard({ weather }: WeatherCardProps) {
         <View style={styles.statDivider} />
 
         <View style={styles.statBox}>
-          <Ionicons name={isRain ? 'car-outline' : 'bicycle-outline'} size={14} color={Theme.colors.primaryBright} />
+          <Ionicons name={isRain ? 'car-outline' : 'bicycle-outline'} size={14} color={Theme.colors.primary} />
           <View>
             <Text style={styles.statValue}>{isRain ? 'SUV / Mobil' : 'Motor / Mobil'}</Text>
             <Text style={styles.statLabel}>Saran Unit</Text>
@@ -78,19 +78,28 @@ export function WeatherCard({ weather }: WeatherCardProps) {
         </View>
       </View>
 
-      <Text style={styles.tipText}>{tipId}</Text>
+      <View style={styles.tipBanner}>
+        <Ionicons name={isRain ? 'rainy-outline' : 'sunny-outline'} size={14} color="#7D553A" />
+        <Text style={styles.tipText}>{tipId}</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Theme.colors.surface,
-    borderRadius: Theme.radius.lg,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
     borderWidth: 1,
+    borderColor: '#EDE4DA',
     padding: 14,
     marginTop: 8,
-    marginBottom: 4
+    marginBottom: 4,
+    shadowColor: '#4E3629',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2
   },
   topRow: {
     flexDirection: 'row',
@@ -101,13 +110,13 @@ const styles = StyleSheet.create({
   leftHero: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
     flex: 1
   },
   iconCircle: {
     width: 42,
     height: 42,
-    borderRadius: 12,
+    borderRadius: 21,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center'
@@ -118,32 +127,31 @@ const styles = StyleSheet.create({
   tempRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 8,
-    flexWrap: 'wrap'
+    gap: 6
   },
   tempText: {
-    color: Theme.colors.textPrimary,
-    fontSize: 22,
+    color: '#2D231C',
+    fontSize: 20,
     fontWeight: '800'
   },
   conditionText: {
-    color: Theme.colors.textPrimary,
-    fontSize: 14,
+    color: '#7D6F64',
+    fontSize: 13,
     fontWeight: '600'
   },
   locationText: {
-    color: Theme.colors.textSecondary,
-    fontSize: 12,
-    marginTop: 2
+    color: '#A89B8F',
+    fontSize: 11,
+    marginTop: 1
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    borderWidth: 1,
-    borderRadius: Theme.radius.pill,
+    gap: 4,
     paddingHorizontal: 10,
-    paddingVertical: 5
+    paddingVertical: 5,
+    borderRadius: Theme.radius.pill,
+    borderWidth: 1
   },
   statusBadgeText: {
     fontSize: 11,
@@ -152,40 +160,52 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Theme.colors.canvas,
-    borderRadius: Theme.radius.md,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
+    justifyContent: 'space-between',
+    backgroundColor: '#FAF7F2',
+    borderRadius: 14,
+    paddingHorizontal: 12,
     paddingVertical: 10,
-    paddingHorizontal: 10,
     marginTop: 12
   },
   statBox: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
-    justifyContent: 'center'
-  },
-  statDivider: {
-    width: 1,
-    height: 22,
-    backgroundColor: Theme.colors.border
+    gap: 8,
+    flex: 1
   },
   statValue: {
-    color: Theme.colors.textPrimary,
+    color: '#2D231C',
     fontSize: 12,
     fontWeight: '700'
   },
   statLabel: {
-    color: Theme.colors.textMuted,
+    color: '#7D6F64',
     fontSize: 10,
     marginTop: 1
   },
-  tipText: {
-    color: Theme.colors.textSecondary,
-    fontSize: 12,
-    lineHeight: 18,
+  statDivider: {
+    width: 1,
+    height: 22,
+    backgroundColor: '#EDE4DA',
+    marginHorizontal: 4
+  },
+  tipBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FCEFE3',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#F3DEC9',
+    paddingHorizontal: 12,
+    paddingVertical: 9,
     marginTop: 10
+  },
+  tipText: {
+    color: '#7D553A',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '500',
+    flex: 1
   }
 });

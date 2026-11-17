@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { formatHubLabel, formatIdr, Theme } from '@/constants/theme';
 import { FleetVehicle } from '@/services/api';
 
@@ -24,28 +24,81 @@ function formatFuelId(fuel: string): string {
   return 'Bensin';
 }
 
+function getVehicleThumbnail(v: FleetVehicle): string {
+  if (v.category === 'Scooter') {
+    return 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=160&auto=format&fit=crop&q=80';
+  }
+  if (v.category === 'EV') {
+    return 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=160&auto=format&fit=crop&q=80';
+  }
+  if (v.category === 'MPV') {
+    return 'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=160&auto=format&fit=crop&q=80';
+  }
+  return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=160&auto=format&fit=crop&q=80';
+}
+
 export function FleetCard({ vehicle, onQuickBook, onAskAi, busy, compact }: FleetCardProps) {
+  if (compact) {
+    return (
+      <View style={styles.recommendCard}>
+        <View style={styles.recommendHeader}>
+          <Ionicons name="sparkles" size={13} color={Theme.colors.primary} />
+          <Text style={styles.recommendHeaderText}>Saran Pilihan Armada</Text>
+        </View>
+
+        <View style={styles.recommendBody}>
+          <Image source={{ uri: getVehicleThumbnail(vehicle) }} style={styles.recommendThumb} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.recommendName} numberOfLines={1}>
+              {vehicle.name}
+            </Text>
+            <Text style={styles.recommendSub} numberOfLines={1}>
+              {formatCategoryId(vehicle.category)} · {vehicle.transmission === 'Automatic' ? 'Matic' : 'Manual'} ·{' '}
+              {vehicle.seats} Kursi
+            </Text>
+            <View style={styles.recommendRatingRow}>
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Ionicons key={s} name="star" size={11} color="#D97706" />
+              ))}
+              <Text style={styles.recommendRatingText}>{vehicle.rating.toFixed(1)}</Text>
+            </View>
+          </View>
+        </View>
+
+        {onQuickBook && (
+          <Pressable
+            onPress={() => onQuickBook(vehicle)}
+            disabled={busy}
+            style={({ pressed }) => [styles.recommendBtn, pressed && { opacity: 0.85 }]}
+          >
+            <Text style={styles.recommendBtnText}>Pesan Unit Ini ({formatIdr(vehicle.dailyRateIdr)}/hari) →</Text>
+          </Pressable>
+        )}
+      </View>
+    );
+  }
+
   return (
-    <View style={[styles.card, compact && styles.cardCompact]}>
+    <View style={styles.card}>
       <View style={styles.topRow}>
         <View style={styles.catBadge}>
           <Ionicons
             name={vehicle.category === 'Scooter' ? 'bicycle' : vehicle.category === 'EV' ? 'flash' : 'car-sport'}
             size={12}
-            color={Theme.colors.mcpA}
+            color={Theme.colors.primary}
           />
           <Text style={styles.catText}>
             {formatCategoryId(vehicle.category)} · {vehicle.transmission === 'Automatic' ? 'Matic' : 'Manual'}
           </Text>
         </View>
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={12} color={Theme.colors.mcpB} />
+          <Ionicons name="star" size={12} color="#D97706" />
           <Text style={styles.ratingText}>{vehicle.rating.toFixed(1)}</Text>
         </View>
       </View>
 
       <Text style={styles.name}>{vehicle.name}</Text>
-      {!compact && <Text style={styles.tagline}>{vehicle.tagline}</Text>}
+      <Text style={styles.tagline}>{vehicle.tagline}</Text>
 
       <View style={styles.specsRow}>
         <View style={styles.specChip}>
@@ -56,7 +109,7 @@ export function FleetCard({ vehicle, onQuickBook, onAskAi, busy, compact }: Flee
         </View>
         {vehicle.surfRackReady && (
           <View style={[styles.specChip, { borderColor: Theme.colors.primaryBorder }]}>
-            <Text style={[styles.specText, { color: Theme.colors.primaryBright }]}>Rak Surf</Text>
+            <Text style={[styles.specText, { color: Theme.colors.primary }]}>Rak Surf</Text>
           </View>
         )}
         <View style={styles.specChip}>
@@ -76,7 +129,7 @@ export function FleetCard({ vehicle, onQuickBook, onAskAi, busy, compact }: Flee
               disabled={busy}
               style={[styles.askBtn, busy && { opacity: 0.5 }]}
             >
-              <Ionicons name="chatbubble-ellipses-outline" size={14} color={Theme.colors.mcpA} />
+              <Ionicons name="chatbubble-ellipses-outline" size={14} color={Theme.colors.primary} />
               <Text style={styles.askBtnText}>Tanya AI</Text>
             </Pressable>
           )}
@@ -96,17 +149,90 @@ export function FleetCard({ vehicle, onQuickBook, onAskAi, busy, compact }: Flee
 }
 
 const styles = StyleSheet.create({
+  recommendCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#EDE4DA',
+    padding: 16,
+    marginTop: 8,
+    marginBottom: 4,
+    shadowColor: '#4E3629',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2
+  },
+  recommendHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 12
+  },
+  recommendHeaderText: {
+    color: Theme.colors.primary,
+    fontSize: 13,
+    fontWeight: '700'
+  },
+  recommendBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 14
+  },
+  recommendThumb: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#F5ECE3'
+  },
+  recommendName: {
+    color: '#2D231C',
+    fontSize: 15,
+    fontWeight: '700'
+  },
+  recommendSub: {
+    color: '#7D6F64',
+    fontSize: 12,
+    marginTop: 2
+  },
+  recommendRatingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    marginTop: 4
+  },
+  recommendRatingText: {
+    color: '#2D231C',
+    fontSize: 12,
+    fontWeight: '700',
+    marginLeft: 4
+  },
+  recommendBtn: {
+    backgroundColor: '#4E3629',
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  recommendBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700'
+  },
   card: {
-    backgroundColor: Theme.colors.surface,
+    backgroundColor: '#FFFFFF',
     borderRadius: Theme.radius.lg,
     borderWidth: 1,
     borderColor: Theme.colors.border,
     padding: 14,
-    marginBottom: 10
-  },
-  cardCompact: {
-    padding: 12,
-    marginBottom: 8
+    marginBottom: 10,
+    shadowColor: '#4E3629',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1
   },
   topRow: {
     flexDirection: 'row',
@@ -117,15 +243,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: Theme.colors.mcpASoft,
-    borderColor: Theme.colors.mcpABorder,
+    backgroundColor: Theme.colors.surfaceElevated,
+    borderColor: Theme.colors.border,
     borderWidth: 1,
     borderRadius: Theme.radius.pill,
     paddingHorizontal: 9,
     paddingVertical: 3
   },
   catText: {
-    color: Theme.colors.mcpA,
+    color: Theme.colors.primary,
     fontSize: 11,
     fontWeight: '700'
   },
@@ -181,7 +307,7 @@ const styles = StyleSheet.create({
     gap: 8
   },
   rateValue: {
-    color: Theme.colors.primaryBright,
+    color: Theme.colors.primary,
     fontSize: 16,
     fontWeight: '800'
   },
@@ -198,15 +324,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: Theme.colors.mcpASoft,
-    borderColor: Theme.colors.mcpABorder,
+    backgroundColor: Theme.colors.surfaceElevated,
+    borderColor: Theme.colors.border,
     borderWidth: 1,
     borderRadius: Theme.radius.md,
     paddingHorizontal: 12,
     paddingVertical: 8
   },
   askBtnText: {
-    color: Theme.colors.mcpA,
+    color: Theme.colors.primary,
     fontSize: 12,
     fontWeight: '700'
   },
@@ -217,7 +343,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8
   },
   bookBtnText: {
-    color: '#052E1E',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '800'
   }

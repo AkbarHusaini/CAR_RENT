@@ -20,7 +20,7 @@ export function FormattedText({ text, style, boldStyle }: FormattedTextProps) {
       {parts.map((part, index) => {
         if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
           return (
-            <Text key={index} style={[{ fontWeight: '700', color: '#FFFFFF' }, boldStyle]}>
+            <Text key={index} style={[{ fontWeight: '700' }, boldStyle]}>
               {part.slice(2, -2)}
             </Text>
           );

@@ -5,7 +5,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -29,6 +31,11 @@ import {
   FleetVehicle,
   McpToolTraceEntry
 } from '@/services/api';
+
+const MAYA_AVATAR =
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';
+const CUSTOMER_AVATAR =
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80';
 
 interface ChatMessage {
   id: string;
@@ -94,14 +101,20 @@ export default function ChatScreen() {
   const [elapsedSec, setElapsedSec] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
   const [mutatingId, setMutatingId] = useState<string | null>(null);
+
+  const todayDateString = `Hari Ini, ${new Date().toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long'
+  })}`;
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome-1',
       role: 'assistant',
-      timestamp: 'Siap',
+      timestamp: '10:35 AM',
       text:
-        'Halo! Saya asisten **Easy Rent Bali**.\n\n' +
-        'Pilih salah satu menu cepat di bawah atau ketik kebutuhan sewa mobil, motor, maupun cek cuaca Bali.'
+        'Halo Kak! Meja favoritmu dan unit rental pilihan di **Canggu Hub** sudah disiapkan ya. 🌴\n\n' +
+        'Silakan ketuk saran rekomendasi di bawah atau ketik langsung kebutuhan sewa kendaraanmu.'
     }
   ]);
 
@@ -273,27 +286,60 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      {/* Clean Simple Header */}
-      <View style={styles.header}>
-        <View style={[styles.innerWrap, styles.brandRow]}>
-          <View style={styles.logoBox}>
-            <Ionicons name="car-sport" size={18} color={Theme.colors.primaryBright} />
+      {/* Tier 1: Top Navigation Bar */}
+      <View style={styles.topNav}>
+        <View style={[styles.innerWrap, styles.topNavRow]}>
+          <Pressable onPress={() => router.push('/fleet')} style={styles.circleBtn}>
+            <Ionicons name="arrow-back" size={19} color="#4E3629" />
+          </Pressable>
+
+          <View style={styles.topCenterTitleWrap}>
+            <View style={styles.miniLogoBox}>
+              <Ionicons name="cafe-outline" size={14} color="#4E3629" />
+            </View>
+            <Text style={styles.topTitleText}>Direct Chat</Text>
           </View>
+
+          <Image source={{ uri: CUSTOMER_AVATAR }} style={styles.customerAvatar} />
+        </View>
+      </View>
+
+      {/* Tier 2: Concierge Agent Profile Bar */}
+      <View style={styles.agentBar}>
+        <View style={[styles.innerWrap, styles.agentBarRow]}>
+          <View style={styles.agentAvatarWrap}>
+            <Image source={{ uri: MAYA_AVATAR }} style={styles.agentAvatar} />
+            <View style={styles.agentBadgeDot}>
+              <Ionicons name="cafe" size={8} color="#FFFFFF" />
+            </View>
+          </View>
+
           <View style={{ flex: 1 }}>
-            <Text style={styles.brandTitle}>Easy Rent Bali</Text>
-            <View style={styles.statusSubRow}>
-              <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: health?.ok ? Theme.colors.primaryBright : Theme.colors.danger }
-                ]}
-              />
-              <Text style={styles.statusSubText} numberOfLines={1}>
+            <Text style={styles.agentName}>Barista Maya</Text>
+            <View style={styles.agentStatusRow}>
+              <Ionicons name="cafe-outline" size={12} color="#7D6F64" />
+              <Text style={styles.agentStatusText} numberOfLines={1}>
                 {health?.ok
-                  ? `Siap membantu · Hub ${formatHubLabel(preferredHub)}`
-                  : healthError || 'Menghubungkan ke server...'}
+                  ? `Sedang menyeduh kopi & menyiapkan unit ${formatHubLabel(preferredHub)}...`
+                  : healthError || 'Menghubungkan ke layanan...'}
               </Text>
             </View>
+          </View>
+
+          <View style={styles.agentActionsGroup}>
+            <Pressable
+              onPress={() =>
+                Linking.openURL('https://wa.me/6288999999060').catch(() =>
+                  Alert.alert('Hubungi WhatsApp', '088999999060')
+                )
+              }
+              style={styles.circleBtn}
+            >
+              <Ionicons name="call-outline" size={17} color="#4E3629" />
+            </Pressable>
+            <Pressable onPress={() => router.push('/fleet')} style={styles.circleBtn}>
+              <Ionicons name="storefront-outline" size={17} color="#4E3629" />
+            </Pressable>
           </View>
         </View>
       </View>
@@ -309,31 +355,37 @@ export default function ChatScreen() {
           contentContainerStyle={styles.chatContent}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={[styles.innerWrap, { gap: 16 }]}>
+          <View style={[styles.innerWrap, { gap: 14 }]}>
+            {/* Center Date Pill Divider */}
+            <View style={styles.datePillWrap}>
+              <View style={styles.datePill}>
+                <Ionicons name="calendar-outline" size={12} color="#7D6555" />
+                <Text style={styles.datePillText}>{todayDateString}</Text>
+              </View>
+            </View>
+
             {messages.map((m) => {
               if (m.role === 'user') {
                 return (
                   <View key={m.id} style={styles.userMsgWrap}>
                     <View style={styles.userBubble}>
                       <Text style={styles.userText}>{m.text}</Text>
+                      <View style={styles.userTimeRow}>
+                        <Text style={styles.userTimestamp}>{m.timestamp} ✓✓</Text>
+                      </View>
                     </View>
-                    <Text style={styles.msgTimestamp}>{m.timestamp} ✓✓</Text>
                   </View>
                 );
               }
 
               return (
                 <View key={m.id} style={styles.botMsgWrap}>
-                  <View style={styles.botHeader}>
-                    <View style={styles.botAvatar}>
-                      <Ionicons name="car-sport" size={13} color={Theme.colors.primaryBright} />
+                  <View style={styles.botBubbleRow}>
+                    <Image source={{ uri: MAYA_AVATAR }} style={styles.botAvatarInline} />
+                    <View style={styles.botBubble}>
+                      <FormattedText text={m.text} style={styles.botText} boldStyle={{ color: '#2D231C' }} />
+                      <Text style={styles.botTimestamp}>{m.timestamp}</Text>
                     </View>
-                    <Text style={styles.botName}>Easy Rent Bali</Text>
-                    <Text style={styles.botTimeTag}>{m.timestamp}</Text>
-                  </View>
-
-                  <View style={styles.botBubble}>
-                    <FormattedText text={m.text} style={styles.botText} />
                   </View>
 
                   {!m.booking && m.weather && <WeatherCard weather={m.weather} />}
@@ -389,10 +441,20 @@ export default function ChatScreen() {
               );
             })}
 
+            {/* Cozy Warm Status Banner */}
+            <View style={styles.statusPillBanner}>
+              <Ionicons name="flame-outline" size={13} color="#7D553A" />
+              <Text style={styles.statusPillText}>
+                {health?.ok
+                  ? `Suhu Canggu: ${Math.round(messages.find((m) => m.weather)?.weather?.temperatureC ?? 30)}°C · Armada disiapkan tepat waktu & bersih`
+                  : 'Menghubungkan ke layanan Easy Rent Bali...'}
+              </Text>
+            </View>
+
             {sending && (
               <View style={styles.loadingCard}>
-                <ActivityIndicator size="small" color={Theme.colors.primaryBright} />
-                <Text style={styles.loadingText}>Sedang memproses ({elapsedSec} detik)...</Text>
+                <ActivityIndicator size="small" color="#4E3629" />
+                <Text style={styles.loadingText}>Sedang menyiapkan jawaban ({elapsedSec} detik)...</Text>
                 <Pressable onPress={() => abortRef.current?.abort()} style={styles.cancelReqBtn}>
                   <Text style={styles.cancelReqText}>Batal</Text>
                 </Pressable>
@@ -418,22 +480,33 @@ export default function ChatScreen() {
             </ScrollView>
 
             <View style={styles.composerRow}>
-              <TextInput
-                value={input}
-                onChangeText={setInput}
-                placeholder="Ketik pertanyaan, cek cuaca, atau sewa kendaraan..."
-                placeholderTextColor={Theme.colors.textMuted}
-                style={styles.textInput}
-                multiline={false}
-                returnKeyType="send"
-                onSubmitEditing={() => sendMessage()}
-              />
+              <Pressable
+                onPress={() => setInput('Halo Maya, apa rekomendasi kendaraan terbaik hari ini?')}
+                style={styles.attachBtn}
+              >
+                <Ionicons name="attach-outline" size={20} color="#4E3629" />
+              </Pressable>
+
+              <View style={styles.inputWrap}>
+                <TextInput
+                  value={input}
+                  onChangeText={setInput}
+                  placeholder="Ketik pesan hangat..."
+                  placeholderTextColor="#A89B8F"
+                  style={styles.textInput}
+                  multiline={false}
+                  returnKeyType="send"
+                  onSubmitEditing={() => sendMessage()}
+                />
+                <Ionicons name="happy-outline" size={20} color="#7D6F64" style={styles.emojiIcon} />
+              </View>
+
               <Pressable
                 onPress={() => sendMessage()}
                 disabled={sending || input.trim().length === 0}
                 style={[styles.sendBtn, (sending || input.trim().length === 0) && { opacity: 0.45 }]}
               >
-                <Ionicons name="arrow-up" size={20} color="#052E1E" />
+                <Ionicons name="send" size={17} color="#FFFFFF" />
               </Pressable>
             </View>
           </View>
@@ -446,202 +519,332 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Theme.colors.canvas
+    backgroundColor: '#FAF7F2'
   },
   innerWrap: {
     width: '100%',
     maxWidth: Theme.layout.maxWidth,
     alignSelf: 'center'
   },
-  header: {
-    backgroundColor: Theme.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Theme.colors.border,
+  topNav: {
+    backgroundColor: '#FAF7F2',
     paddingHorizontal: 16,
-    paddingVertical: 11
+    paddingTop: 8,
+    paddingBottom: 10
   },
-  brandRow: {
+  topNavRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10
+    justifyContent: 'space-between'
   },
-  logoBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: Theme.colors.primarySoft,
-    borderWidth: 1,
-    borderColor: Theme.colors.primaryBorder,
+  circleBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F4EDE4',
     alignItems: 'center',
     justifyContent: 'center'
   },
-  brandTitle: {
-    color: Theme.colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '800'
+  topCenterTitleWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
   },
-  statusSubRow: {
+  miniLogoBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#F4EDE4',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  topTitleText: {
+    color: '#2D231C',
+    fontSize: 18,
+    fontWeight: '700'
+  },
+  customerAvatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F4EDE4'
+  },
+  agentBar: {
+    backgroundColor: '#FAF7F2',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDE4DA'
+  },
+  agentBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12
+  },
+  agentAvatarWrap: {
+    position: 'relative'
+  },
+  agentAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F4EDE4'
+  },
+  agentBadgeDot: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#4E3629',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FAF7F2'
+  },
+  agentName: {
+    color: '#2D231C',
+    fontSize: 15,
+    fontWeight: '700'
+  },
+  agentStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 2
+  },
+  agentStatusText: {
+    color: '#7D6F64',
+    fontSize: 12,
+    flex: 1
+  },
+  agentActionsGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  datePillWrap: {
+    alignItems: 'center',
+    marginVertical: 4
+  },
+  datePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 2
+    backgroundColor: '#F4ECE2',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#EADECF',
+    paddingHorizontal: 14,
+    paddingVertical: 5
   },
-  statusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4
-  },
-  statusSubText: {
-    color: Theme.colors.textSecondary,
+  datePillText: {
+    color: '#7D6555',
     fontSize: 12,
-    flex: 1
+    fontWeight: '600'
   },
   chatScroll: {
     flex: 1
   },
   chatContent: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 12,
     paddingBottom: 24
   },
   userMsgWrap: {
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
+    marginVertical: 4
   },
   userBubble: {
     maxWidth: '82%',
-    backgroundColor: Theme.colors.userBubble,
-    borderWidth: 1,
-    borderColor: Theme.colors.userBubbleBorder,
-    borderRadius: Theme.radius.lg,
+    backgroundColor: '#4E3629',
+    borderRadius: 20,
     borderBottomRightRadius: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 10
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    shadowColor: '#4E3629',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2
   },
   userText: {
-    color: Theme.colors.textPrimary,
+    color: '#FFFFFF',
     fontSize: 14,
-    lineHeight: 20
+    lineHeight: 21
   },
-  msgTimestamp: {
-    color: Theme.colors.textMuted,
-    fontSize: 10,
+  userTimeRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     marginTop: 4
   },
-  botMsgWrap: {
-    alignItems: 'stretch'
+  userTimestamp: {
+    color: '#D8C6B6',
+    fontSize: 10,
+    fontWeight: '500'
   },
-  botHeader: {
+  botMsgWrap: {
+    alignItems: 'stretch',
+    marginVertical: 4
+  },
+  botBubbleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 8,
+    maxWidth: '88%'
+  },
+  botAvatarInline: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#F4EDE4'
+  },
+  botBubble: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EDE4DA',
+    borderRadius: 20,
+    borderBottomLeftRadius: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    shadowColor: '#4E3629',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    flex: 1
+  },
+  botText: {
+    color: '#2D231C',
+    fontSize: 14,
+    lineHeight: 21
+  },
+  botTimestamp: {
+    color: '#9E9084',
+    fontSize: 10,
+    alignSelf: 'flex-end',
+    marginTop: 4
+  },
+  statusPillBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 8
-  },
-  botAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Theme.colors.primarySoft,
+    backgroundColor: '#FCEFE3',
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: Theme.colors.primaryBorder,
-    alignItems: 'center',
-    justifyContent: 'center'
+    borderColor: '#F3DEC9',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    alignSelf: 'center',
+    marginVertical: 6
   },
-  botName: {
-    color: Theme.colors.textPrimary,
-    fontSize: 13,
-    fontWeight: '700'
-  },
-  botTimeTag: {
-    color: Theme.colors.textMuted,
-    fontSize: 11
-  },
-  botBubble: {
-    backgroundColor: Theme.colors.surface,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
-    borderRadius: Theme.radius.lg,
-    paddingHorizontal: 15,
-    paddingVertical: 12
-  },
-  botText: {
-    color: '#E2E8F0',
-    fontSize: 14,
-    lineHeight: 21
+  statusPillText: {
+    color: '#7D553A',
+    fontSize: 12,
+    fontWeight: '600'
   },
   loadingCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: Theme.colors.surface,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: Theme.colors.mcpABorder,
+    borderColor: '#EDE4DA',
     borderRadius: Theme.radius.lg,
     padding: 12
   },
   loadingText: {
-    color: Theme.colors.mcpA,
+    color: '#7D6F64',
     fontSize: 13,
     flex: 1
   },
   cancelReqBtn: {
-    backgroundColor: Theme.colors.dangerSoft,
-    borderColor: Theme.colors.dangerBorder,
+    backgroundColor: '#FFF5F5',
+    borderColor: '#FEB2B2',
     borderWidth: 1,
     borderRadius: Theme.radius.sm,
     paddingHorizontal: 12,
     paddingVertical: 6
   },
   cancelReqText: {
-    color: Theme.colors.danger,
+    color: '#C53030',
     fontSize: 12,
     fontWeight: '700'
   },
   quickDock: {
-    backgroundColor: Theme.colors.canvas,
+    backgroundColor: '#FAF7F2',
     borderTopWidth: 1,
-    borderTopColor: Theme.colors.border,
-    paddingTop: 10,
+    borderTopColor: '#EDE4DA',
+    paddingTop: 8,
     paddingBottom: 12,
     paddingHorizontal: 16
   },
   quickScroll: {
     gap: 8,
-    paddingBottom: 10
+    paddingBottom: 8
   },
   quickChip: {
-    backgroundColor: Theme.colors.surface,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: Theme.colors.borderLight,
+    borderColor: '#EDE4DA',
     borderRadius: Theme.radius.pill,
     paddingHorizontal: 13,
-    paddingVertical: 7
+    paddingVertical: 7,
+    shadowColor: '#4E3629',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1
   },
   quickChipText: {
-    color: Theme.colors.textPrimary,
+    color: '#4E3629',
     fontSize: 12,
     fontWeight: '600'
   },
   composerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10
+    gap: 8
+  },
+  attachBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F4EDE4',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  inputWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EDE4DA',
+    borderRadius: 25,
+    height: 46,
+    paddingHorizontal: 14,
+    shadowColor: '#4E3629',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1
   },
   textInput: {
     flex: 1,
-    height: 46,
-    backgroundColor: Theme.colors.surface,
-    borderWidth: 1,
-    borderColor: Theme.colors.borderLight,
-    borderRadius: Theme.radius.pill,
-    paddingHorizontal: 16,
-    color: Theme.colors.textPrimary,
-    fontSize: 14
+    color: '#2D231C',
+    fontSize: 14,
+    paddingRight: 8
+  },
+  emojiIcon: {
+    marginLeft: 4
   },
   sendBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Theme.colors.primary,
+    backgroundColor: '#4E3629',
     alignItems: 'center',
     justifyContent: 'center'
   }

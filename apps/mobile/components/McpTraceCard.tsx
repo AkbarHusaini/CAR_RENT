@@ -184,17 +184,20 @@ export function McpTraceCard({ trace, totalDurationMs, engineUsed }: McpTraceCar
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Theme.colors.surface,
+    backgroundColor: '#FFFFFF',
     borderRadius: Theme.radius.md,
     borderWidth: 1,
-    borderColor: Theme.colors.border,
+    borderColor: '#EDE4DA',
     padding: 10,
     marginTop: 8
   },
   containerCompact: {
-    backgroundColor: Theme.colors.canvas,
-    paddingHorizontal: 10,
-    paddingVertical: 7
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EDE4DA',
+    borderRadius: Theme.radius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 8
   },
   header: {
     flexDirection: 'row',
@@ -326,21 +329,21 @@ const styles = StyleSheet.create({
     marginTop: 4
   },
   resultPreview: {
-    color: Theme.colors.primaryBright,
+    color: '#4E3629',
     fontSize: 11,
     marginTop: 4,
-    fontWeight: '500'
+    fontWeight: '600'
   },
   jsonBox: {
     marginTop: 8,
-    backgroundColor: '#070B0F',
+    backgroundColor: '#2D231C',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Theme.colors.border,
+    borderColor: '#4E3629',
     padding: 8
   },
   jsonText: {
-    color: '#CBD5E1',
+    color: '#FAF7F2',
     fontSize: 10,
     fontFamily: Theme.fonts.mono,
     lineHeight: 15

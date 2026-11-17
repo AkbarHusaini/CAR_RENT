@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     gap: 6
   },
   primaryBtnText: {
-    color: '#052E1E',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '800'
   },

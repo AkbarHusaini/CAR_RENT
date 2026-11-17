@@ -27,7 +27,6 @@ import {
   BaliWeatherReport,
   BookingRecord,
   FleetVehicle,
-  LlmEngineMode,
   McpToolTraceEntry
 } from '@/services/api';
 
@@ -72,30 +71,12 @@ const QUICK_PROMPTS = [
   }
 ];
 
-const ENGINE_CYCLE: LlmEngineMode[] = ['auto', 'direct', 'gemini', 'openai', 'ollama'];
-
-function getEngineLabel(mode: LlmEngineMode): string {
-  switch (mode) {
-    case 'auto':
-      return 'Otomatis';
-    case 'direct':
-      return 'Cepat';
-    case 'gemini':
-      return 'Gemini';
-    case 'openai':
-      return 'OpenAI';
-    case 'ollama':
-      return 'Ollama';
-  }
-}
-
 export default function ChatScreen() {
   const router = useRouter();
   const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const {
     apiBaseUrl,
     engine,
-    setEngine,
     llmConfig,
     customerName,
     preferredHub,
@@ -194,10 +175,10 @@ export default function ChatScreen() {
       const isNetworkDown =
         /failed to fetch|network request failed|econnrefused|load failed/i.test(rawMsg);
       const friendlyMsg = isAbort
-        ? `Permintaan dibatalkan atau melewati batas waktu pada mode "${getEngineLabel(engine)}". Coba pilih mode **Cepat** di kanan atas.`
+        ? 'Permintaan dibatalkan atau melewati batas waktu. Silakan coba kirim ulang.'
         : isNetworkDown
         ? `Belum dapat terhubung ke server backend (${apiBaseUrl}). Pastikan backend sudah berjalan lalu coba lagi.`
-        : `Terjadi kendala sementara saat memproses permintaan (${rawMsg.slice(0, 140)}). Coba ganti mode di pojok kanan atas ke **Cepat**.`;
+        : `Terjadi kendala sementara saat memproses permintaan (${rawMsg.slice(0, 140)}). Silakan coba kirim ulang.`;
       setMessages((prev) => [
         ...prev,
         {
@@ -290,12 +271,6 @@ export default function ChatScreen() {
     );
   };
 
-  const cycleEngine = () => {
-    const idx = ENGINE_CYCLE.indexOf(engine);
-    const next = ENGINE_CYCLE[(idx + 1) % ENGINE_CYCLE.length];
-    setEngine(next);
-  };
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       {/* Clean Simple Header */}
@@ -320,13 +295,6 @@ export default function ChatScreen() {
               </Text>
             </View>
           </View>
-          <Pressable onPress={cycleEngine} style={styles.enginePill}>
-            <Ionicons name="sparkles-outline" size={13} color={Theme.colors.mcpA} />
-            <Text style={styles.enginePillText}>{getEngineLabel(engine)}</Text>
-          </Pressable>
-          <Pressable onPress={() => router.push('/logs')} style={styles.iconBtn}>
-            <Ionicons name="settings-outline" size={17} color={Theme.colors.textPrimary} />
-          </Pressable>
         </View>
       </View>
 
@@ -527,32 +495,6 @@ const styles = StyleSheet.create({
     color: Theme.colors.textSecondary,
     fontSize: 12,
     flex: 1
-  },
-  enginePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: Theme.colors.mcpASoft,
-    borderColor: Theme.colors.mcpABorder,
-    borderWidth: 1,
-    borderRadius: Theme.radius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 6
-  },
-  enginePillText: {
-    color: Theme.colors.mcpA,
-    fontSize: 11,
-    fontWeight: '700'
-  },
-  iconBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 9,
-    backgroundColor: Theme.colors.canvas,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
-    alignItems: 'center',
-    justifyContent: 'center'
   },
   chatScroll: {
     flex: 1
